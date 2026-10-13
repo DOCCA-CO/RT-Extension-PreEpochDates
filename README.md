@@ -27,22 +27,51 @@ The following dates are now accepted and stored correctly:
 
 ## RT Version Compatibility
 
-* Tested on Request Tracker **5.0.x** 
+* Requires Request Tracker **5.0.0** or later.
+* Tested on Request Tracker **5.0.x**.
 
 ---
 
 ## Installation
 
-Add this line to your RT_SiteConfig.pm configuration file:
+Install the extension from its source directory on the RT server. If it is not
+already available, install the build prerequisite first:
 
-Plugin('RT::Extension::PreEpochDates');
+```sh
+cpanm Module::Install::RTx
+```
 
-```bash
+Set `RTHOME` to the RT installation directory, then generate and install the
+extension. `make install` must be run with permission to write to RT:
+
+```sh
+export RTHOME=/opt/rt
 perl Makefile.PL
 make
 make install
+```
 
-Clear your mason cache and restart your web server:
+Enable the plugin by adding this line to `RT_SiteConfig.pm`:
 
-rm -rf /opt/rt5/var/mason_data/obj/*
-systemctl restart apache2 # or systemctl restart php-fpm / spawn-fcgi / webserver
+```perl
+Plugin('RT::Extension::PreEpochDates');
+```
+
+Then clear RT's Mason cache and restart the web server. The RT installation
+path and service name vary by deployment; for example:
+
+```sh
+rm -rf /opt/rt/var/mason_data/obj/*
+systemctl restart apache2
+```
+
+## Tests
+
+The integration test needs an installed RT tree and its configuration. Set
+`RTHOME` to that tree and run:
+
+```sh
+RTHOME=/opt/rt prove -v xt/date.t
+```
+
+No database migration is required.
